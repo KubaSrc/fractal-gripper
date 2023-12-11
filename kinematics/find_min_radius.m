@@ -1,51 +1,57 @@
 
+find_min_radius(w, h, epsilon, w0)
 
 
-function find_min_radius(w, h, epsilon)
-    % Function to find the minimum radius of curvature and plot
+ function find_min_radius(w, h, epsilon, w0)
+    % Function to find the minimum radius of curvature and plot two suction cups connected by a line w0
 
     % Calculate the radius directly
     R_min = (w^2 + 4*epsilon^2) / (8*epsilon);
 
-    % Define the circle
-    theta = linspace(0, 2*pi, 1000);
-    x_circle = R_min * cos(theta);
-    y_circle = R_min * sin(theta);
+    % Angle theta for the large triangle
+    theta = asin(w0 / (2 * (R_min + h - epsilon)));
+    
+    % Define the first suction cup
+    x_triangle0 = [-w/2, w/2, 0];
+    y_triangle0 = [R_min-epsilon, R_min-epsilon, R_min-epsilon+h];
 
-    % Define the triangle
-    x_triangle = [-w/2, w/2, 0, -w/2];
-    y_triangle = [R_min-epsilon, R_min-epsilon, R_min-epsilon+h, R_min-epsilon];
+    % Define the second suction cup (rotated by 2*theta around the circle)
+    x_triangle1 = x_triangle0 * cos(2*theta) - y_triangle0 * sin(2*theta);
+    y_triangle1 = x_triangle0 * sin(2*theta) + y_triangle0 * cos(2*theta);
 
-    % Define the arc length
-    % The arc is centered at the top of the circle (theta = pi/2)
-    % and spans an angle such that its endpoints are at the intersection with the triangle base
-    theta_arc_start = pi/2 - asin(w/(2*R_min));
-    theta_arc_end = pi/2 + asin(w/(2*R_min));
-    theta_arc = linspace(theta_arc_start, theta_arc_end, 100);
-    x_arc = R_min * cos(theta_arc);
-    y_arc = R_min * sin(theta_arc);
+    % Define the second suction cup (rotated by 2*theta around the circle)
+    x_triangle2 = x_triangle0 * cos(-2*theta) - y_triangle0 * sin(-2*theta);
+    y_triangle2 = x_triangle0 * sin(-2*theta) + y_triangle0 * cos(-2*theta);
+    
+    % Connecting line (w0) between the tops of the triangles
+    x_line_w0 = [x_triangle1(3), x_triangle2(3)];
+    y_line_w0 = [y_triangle1(3), y_triangle2(3)];
 
     % Plotting
     figure;
     hold on;
     
-    % Plot and fill the circle
+    % Plot the circle
+    theta_circle = linspace(0, 2*pi, 1000);
+    x_circle = R_min * cos(theta_circle);
+    y_circle = R_min * sin(theta_circle);
     fill(x_circle, y_circle, [0.8 0.8 0.8], 'EdgeColor', 'black'); % Light gray fill, black edge
     
-    % Plot and fill the triangle
-    fill(x_triangle, y_triangle, [0.678 0.847 0.902], 'EdgeColor', 'black'); % Light blue fill, black edge
+    % Plot the first suction cup
+    fill(x_triangle1, y_triangle1, [0.678 0.847 0.902], 'EdgeColor', 'black'); % Light blue fill, black edge
     
-    % Plot the arc length where the suction cup meets the circle
-    plot(x_arc, y_arc, 'g-', 'LineWidth', 3); % Green arc
+    % Plot the second suction cup
+    fill(x_triangle2, y_triangle2, [0.678 0.847 0.902], 'EdgeColor', 'black'); % Light blue fill, black edge
+    
+    % Plot the connecting line w0
+    plot(x_line_w0, y_line_w0, 'k-', 'LineWidth', 2); % Line w0
     
     % Set plot limits and labels
-    xlim([min(x_circle)-1, max(x_circle)+1]);
-    ylim([min(y_circle)-1, h+1]);
     axis equal;
     grid on;
     xlabel('X-axis');
     ylabel('Y-axis');
-    title(sprintf('Suction Cup and Circle (R = %.2f)', R_min));
+    title(sprintf('Dual Suction Cups on Circle (R = %.2f)', R_min));
 
     hold off;
 end

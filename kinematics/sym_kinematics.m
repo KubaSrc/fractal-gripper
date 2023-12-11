@@ -1,137 +1,207 @@
-function draw_fractal(R_min, w0, h0, epsilon, s, n)
-    % This function draws a fractal branching structure of triangles
+close all; clear all; clc
+
+% Fractal parameters
+w0 = 15;
+h0 = 15;
+s = 0.35;
+n = 0;
+wn = (s.^n).*w0;
+epsilon = wn*10^-1.25;
+
+find_min_radius(w0, h0, s, n, wn, epsilon);
+
+%% 
+function find_min_radius(w0, h0, s, n, wn, epsilon)
     
-    % Base case: draw the bottom layer of triangles
+    % View ratio
+    vr = 0.6;
+
+    % Calculate the radius directly
+    R_min = (wn^2 + 4*epsilon^2) / (8*epsilon)
+
+
+    % Function to find the minimum radius of curvature and plot two suction cups connected by a line w0
     if n == 0
-        % Draw the initial triangle
-        draw_triangle(R_min, 0, 0, w0, h0);
-    else
-        % Calculate the width and height for this layer
-        w = w0 * s^n;
-        h = h0 * s^n;
-
-        % Calculate the separation angle for this layer
-        theta = asin(w / (2 * (R_min + h - epsilon)));
+    
+        % Define the circle
+        theta = linspace(0, 2*pi, 1000);
+        x_circle = R_min * cos(theta);
+        y_circle = R_min * sin(theta);
+    
+        % Define the first suction cup
+        x_triangle = [-wn/2, wn/2, 0];
+        y_triangle = [R_min-epsilon, R_min-epsilon, R_min-epsilon+h0];
+    
+        % Define the arc length
+        % The arc is centered at the top of the circle (theta = pi/2)
+        theta_arc_start = pi/2 - asin(wn/(2*R_min));
+        theta_arc_end = pi/2 + asin(wn/(2*R_min));
+        theta_arc = linspace(theta_arc_start, theta_arc_end, 100);
+        x_arc = R_min * cos(theta_arc);
+        y_arc = R_min * sin(theta_arc);
+    
+        % Plotting
+        figure; clf; hold on; axis off;
+        set(gcf, 'Color', 'white'); % Set the color of the current figure to white
         
-        % Call the function recursively to draw the previous layer
-        draw_fractal(R_min, w0, h0, epsilon, s, n-1);
+        % Plot and fill the triangle with a dotted base line
+        fill(x_triangle, y_triangle, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',3.5); % Light blue fill, black edge
         
-        % Calculate the number of triangle pairs for this layer
-        num_pairs = 2^(n-1);
+        % Plot dotted line at base of triangle
+        plot([x_triangle(1),x_triangle(2)],[y_triangle(1),y_triangle(2)],'k:','lineWidth',3.5)
 
-        % Draw the triangles and connecting lines for this layer
-        for i = 1:num_pairs
-            % Calculate the rotation angle for this pair
-            angle = (2*i - 1) * theta;
-            
-            % Draw the left triangle of the pair
-            draw_triangle(R_min, angle, -1, w, h);
-            
-            % Draw the right triangle of the pair
-            draw_triangle(R_min, angle, 1, w, h);
-            
-            % Draw the connecting line between the triangles
-            draw_connecting_line(R_min, w, h, angle, epsilon);
-        end
+        % Plot and fill the circle
+        fill(x_circle, y_circle, [0.8 0.8 0.8], 'EdgeColor', 'black','lineWidth',3);
+
+        % Plot the arc length where the suction cup meets the circle
+        plot(x_arc, y_arc, 'g-', 'LineWidth', 4);
+
+        % Dotted base line
+        plot(x_triangle(1:2), y_triangle(1:2), 'k:','lineWidth',3.5);
+        
+        % Set plot limits and labels
+        axis equal;
+        xlim([-w0.*vr,w0.*vr]);
+        ylim([R_min-(w0.*vr),R_min+(w0.*vr)])
+
+        hold off;
+
+    elseif n == 1
+    
+        h = h0.*s;
+        w = w0.*s;
+
+        % Angle theta for the large triangle
+        theta = asin(w0 / (2 * (R_min + h - epsilon)));
+    
+        % Define the first suction cup
+        x_triangle0 = [-wn/2, wn/2, 0];
+        y_triangle0 = [R_min-epsilon, R_min-epsilon, R_min-epsilon+h];
+
+        % Define the arc length
+        % The arc is centered at the top of the circle (theta = pi/2)
+        theta_arc_start = pi/2 - asin(wn/(2*R_min));
+        theta_arc_end = pi/2 + asin(wn/(2*R_min));
+        theta_arc = linspace(theta_arc_start, theta_arc_end, 100);
+        x_arc0 = R_min * cos(theta_arc);
+        y_arc0 = R_min * sin(theta_arc);
+    
+        % Define the second suction cup (rotated by theta around the circle)
+        x_triangle1 = x_triangle0 * cos(theta) - y_triangle0 * sin(theta);
+        y_triangle1 = x_triangle0 * sin(theta) + y_triangle0 * cos(theta);
+        x_arc1 = x_arc0 *cos(theta) - y_arc0* sin(theta);
+        y_arc1 = x_arc0 * sin(theta) + y_arc0 * cos(theta);
+    
+        % Define the second suction cup (rotated by 2*theta around the circle)
+        x_triangle2 = x_triangle0 * cos(-theta) - y_triangle0 * sin(-theta);
+        y_triangle2 = x_triangle0 * sin(-theta) + y_triangle0 * cos(-theta);
+        x_arc2 = x_arc0 *cos(-theta) - y_arc0* sin(-theta);
+        y_arc2 = x_arc0 * sin(-theta) + y_arc0 * cos(-theta);
+    
+        % Connecting line (w0) between the tops of the triangles
+        x_line_w0 = [x_triangle1(3), x_triangle2(3)];
+        y_line_w0 = [y_triangle1(3), y_triangle2(3)];
+    
+        % Plotting
+        figure; clf; hold on; axis off;
+        set(gcf, 'Color', 'white'); % Set the color of the current figure to white
+    
+        % Plot the first suction cup
+        fill(x_triangle1, y_triangle1, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',3.5); % Light blue fill, black edge
+    
+        % Plot the second suction cup
+        fill(x_triangle2, y_triangle2, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',3.5); % Light blue fill, black edge
+    
+        % Plot the circle
+        theta_circle = linspace(0, 2*pi, 1000);
+        x_circle = R_min * cos(theta_circle);
+        y_circle = R_min * sin(theta_circle);
+        fill(x_circle, y_circle, [0.8 0.8 0.8], 'EdgeColor', 'black','lineWidth',3); % Light gray fill, black edge
+    
+        plot(x_arc1, y_arc1, 'g-', 'LineWidth', 4);
+        plot(x_arc2, y_arc2, 'g-', 'LineWidth', 4);
+
+        % Set plot limits and labels
+        axis equal;
+        xlim([-w0.*vr,w0.*vr]);
+        ylim([R_min-(w0.*vr),R_min+(w0.*vr)])
+    
+        hold off;
+
+    elseif n == 2
+    
+        % Scaled triangle sizes
+        h1 = h0.*s;
+        w1 = w0.*s;
+        h2 = h1.*s;
+        w2 = w1.*s;
+
+        theta2 = asin((w1/2)/(R_min+h2));
+        y = (R_min+h2).*cos(theta2);
+        theta1 = asin((w0/2)/(y+h1));
+
+        % Define the first suction cup
+        x_triangle0 = [-wn/2, wn/2, 0];
+        y_triangle0 = [R_min-epsilon, R_min-epsilon, R_min-epsilon+h2];
+
+        % Define the arc length
+        % The arc is centered at the top of the circle (theta = pi/2)
+        theta_arc_start = pi/2 - asin(wn/(2*R_min));
+        theta_arc_end = pi/2 + asin(wn/(2*R_min));
+        theta_arc = linspace(theta_arc_start, theta_arc_end, 100);
+        x_arc0 = R_min * cos(theta_arc);
+        y_arc0 = R_min * sin(theta_arc);
+    
+        % Define the second suction cup (rotated by theta around the circle)
+        theta = theta1+theta2;
+        x_triangle1 = x_triangle0 * cos(theta) - y_triangle0 * sin(theta);
+        y_triangle1 = x_triangle0 * sin(theta) + y_triangle0 * cos(theta);
+        x_arc1 = x_arc0 *cos(theta) - y_arc0* sin(theta);
+        y_arc1 = x_arc0 * sin(theta) + y_arc0 * cos(theta);
+   
+        % Define the second suction cup (rotated by 2*theta around the circle)
+        theta = theta1-theta2;
+        x_triangle2 = x_triangle0 * cos(theta) - y_triangle0 * sin(theta);
+        y_triangle2 = x_triangle0 * sin(theta) + y_triangle0 * cos(theta);
+        x_arc2 = x_arc0 *cos(theta) - y_arc0* sin(theta);
+        y_arc2 = x_arc0 * sin(theta) + y_arc0 * cos(theta);
+    
+
+        % Plotting
+        figure; clf; hold on; axis off;
+        set(gcf, 'Color', 'white'); % Set the color of the current figure to white
+    
+        % Plot the first suction cup
+        fill(x_triangle1, y_triangle1, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',2); % Light blue fill, black edge
+    
+        % Plot the second suction cup
+        fill(x_triangle2, y_triangle2, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',2); % Light blue fill, black edge
+    
+        % Plot the first suction cup
+        fill(-x_triangle1, y_triangle1, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',2); % Light blue fill, black edge
+    
+        % Plot the second suction cup
+        fill(-x_triangle2, y_triangle2, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',2); % Light blue fill, black edge
+    
+
+        % Plot the circle
+        theta_circle = linspace(0, 2*pi, 1000);
+        x_circle = R_min * cos(theta_circle);
+        y_circle = R_min * sin(theta_circle);
+        fill(x_circle, y_circle, [0.8 0.8 0.8], 'EdgeColor', 'black','lineWidth',1.5); % Light gray fill, black edge
+    
+        plot(x_arc1, y_arc1, 'g-', 'LineWidth', 2.5);
+        plot(x_arc2, y_arc2, 'g-', 'LineWidth', 2.5);
+
+        plot(-x_arc1, y_arc1, 'g-', 'LineWidth', 2.5);
+        plot(-x_arc2, y_arc2, 'g-', 'LineWidth', 2.5);
+
+        % Set plot limits and labels
+        axis equal;
+        xlim([-w0.*vr,w0.*vr]);
+        ylim([R_min-(w0.*vr),R_min+(w0.*vr)])
+
+
+        hold off;
     end
 end
-
-function draw_triangle(R_min, angle, direction, w, h)
-    % Helper function to draw a single triangle
-    % direction -1 for left, 1 for right
-    % angle is the angle to rotate the triangle
-end
-
-function draw_connecting_line(R_min, w, h, angle, epsilon)
-    % Helper function to draw the connecting line between triangle peaks
-end
-
-% Main function call to draw the fractal
-figure;
-hold on;
-epsilon = 0.5; % Example tolerance
-s = 0.5;       % Example scaling factor
-n = 3;         % Example number of layers
-w0 = 10;       % Example initial width
-h0 = 5;        % Example initial height
-R_min = calculate_radius(w0, epsilon, s, n); % You need to define this function based on your scaling
-
-% Call the fractal drawing function
-draw_fractal(R_min, w0, h0, epsilon, s, n);
-
-axis equal;
-grid on;
-xlabel('X-axis');
-ylabel('Y-axis');
-title(sprintf('Fractal Suction Cups on Circle (R = %.2f)', R_min));
-hold off;
-
-% You will need to define 'calculate_radius', 'draw_triangle', and 'draw_connecting_line' functions
-% according to the specifics of your fractal.
-
-
-
-% close all; clear all; clc
-% 
-% s = 0.25;
-% 
-% w = 15;
-% h = 15;
-% w0 = w./s;
-% 
-% find_min_radius(w, h, 0.5, w0);
-% 
-% %% 
-% function find_min_radius(w, h, epsilon, w0)
-%     % Function to find the minimum radius of curvature and plot two suction cups connected by a line w0
-% 
-%     % Calculate the radius directly
-%     R_min = (w^2 + 4*epsilon^2) / (8*epsilon);
-% 
-%     % Angle theta for the large triangle
-%     theta = asin(w0 / (2 * (R_min + h - epsilon)));
-% 
-%     % Define the first suction cup
-%     x_triangle0 = [-w/2, w/2, 0];
-%     y_triangle0 = [R_min-epsilon, R_min-epsilon, R_min-epsilon+h];
-% 
-%     % Define the second suction cup (rotated by 2*theta around the circle)
-%     x_triangle1 = x_triangle0 * cos(theta) - y_triangle0 * sin(theta);
-%     y_triangle1 = x_triangle0 * sin(theta) + y_triangle0 * cos(theta);
-% 
-%     % Define the second suction cup (rotated by 2*theta around the circle)
-%     x_triangle2 = x_triangle0 * cos(-theta) - y_triangle0 * sin(-theta);
-%     y_triangle2 = x_triangle0 * sin(-theta) + y_triangle0 * cos(-theta);
-% 
-%     % Connecting line (w0) between the tops of the triangles
-%     x_line_w0 = [x_triangle1(3), x_triangle2(3)];
-%     y_line_w0 = [y_triangle1(3), y_triangle2(3)];
-% 
-%     % Plotting
-%     figure;
-%     hold on;
-% 
-%     % Plot the circle
-%     theta_circle = linspace(0, 2*pi, 1000);
-%     x_circle = R_min * cos(theta_circle);
-%     y_circle = R_min * sin(theta_circle);
-%     fill(x_circle, y_circle, [0.8 0.8 0.8], 'EdgeColor', 'black'); % Light gray fill, black edge
-% 
-%     % Plot the first suction cup
-%     fill(x_triangle1, y_triangle1, [0.678 0.847 0.902], 'EdgeColor', 'black'); % Light blue fill, black edge
-% 
-%     % Plot the second suction cup
-%     fill(x_triangle2, y_triangle2, [0.678 0.847 0.902], 'EdgeColor', 'black'); % Light blue fill, black edge
-% 
-%     % Plot the connecting line w0
-%     plot(x_line_w0, y_line_w0, 'k-', 'LineWidth', 2); % Line w0
-% 
-%     % Set plot limits and labels
-%     axis equal;
-%     grid on;
-%     xlabel('X-axis');
-%     ylabel('Y-axis');
-%     title(sprintf('Dual Suction Cups on Circle (R = %.2f)', R_min));
-% 
-%     hold off;
-% end
