@@ -11,13 +11,13 @@ Kappa = 1./R_min;
 figure(1); clf; hold on; grid on;
 
 ax = gca; % Get current axes
-ax.FontSize = 12; % Set font size
+ax.FontSize = 10; % Set font size
 set(gca, 'FontName', 'Times New Roman');
 ax.LineWidth = 1.5; % Set axes line width
 
-plot(n,w0./R_min,'o:','lineWidth',3,'Color','#6280C2','MarkerSize',5,'MarkerFaceColor','#6280C2','MarkerEdgeColor','#6280C2')
+plot(n,w0./R_min,'o:','lineWidth',2.5,'Color','#6280C2','MarkerSize',3,'MarkerFaceColor','#6280C2','MarkerEdgeColor','#6280C2')
 set(gcf, 'Units', 'inches'); % Set the units of the figure to inches
-set(gcf, 'Position', [1, 1, 6, 2]);
+set(gcf, 'Position', [1, 1, 2.75, 2.25]);
 
 
 % ylabel('W_0 / R_{min}','FontName','Times New Roman','fontSize',16)

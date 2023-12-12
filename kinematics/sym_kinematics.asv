@@ -4,7 +4,7 @@ close all; clear all; clc
 w0 = 15;
 h0 = 15;
 s = 0.35;
-n = 1;
+n = 0;
 wn = (s.^n).*w0;
 epsilon = wn*10^-1.25;
 
@@ -14,7 +14,7 @@ find_min_radius(w0, h0, s, n, wn, epsilon);
 function find_min_radius(w0, h0, s, n, wn, epsilon)
     
     % View ratio
-    vr = 0.65;
+    vr = 0.6;
 
     % Calculate the radius directly
     R_min = (wn^2 + 4*epsilon^2) / (8*epsilon)
@@ -45,25 +45,25 @@ function find_min_radius(w0, h0, s, n, wn, epsilon)
         set(gcf, 'Color', 'white'); % Set the color of the current figure to white
         
         % Plot and fill the triangle with a dotted base line
-        fill(x_triangle, y_triangle, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',3); % Light blue fill, black edge
+        fill(x_triangle, y_triangle, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',3.5); % Light blue fill, black edge
         
         % Plot dotted line at base of triangle
-        plot([x_triangle(1),x_triangle(2)],[y_triangle(1),y_triangle(2)],'k:','lineWidth',3)
+        plot([x_triangle(1),x_triangle(2)],[y_triangle(1),y_triangle(2)],'k:','lineWidth',3.5)
 
         % Plot and fill the circle
-        fill(x_circle, y_circle, [0.8 0.8 0.8], 'EdgeColor', 'black','lineWidth',2);
+        fill(x_circle, y_circle, [0.8 0.8 0.8], 'EdgeColor', 'black','lineWidth',3);
 
         % Plot the arc length where the suction cup meets the circle
-        plot(x_arc, y_arc, 'g-', 'LineWidth', 3.5);
+        plot(x_arc, y_arc, 'g-', 'LineWidth', 4);
 
         % Dotted base line
-        plot(x_triangle(1:2), y_triangle(1:2), 'k:','lineWidth',3);
+        plot(x_triangle(1:2), y_triangle(1:2), 'k:','lineWidth',3.5);
         
         % Set plot limits and labels
         axis equal;
         xlim([-w0.*vr,w0.*vr]);
         ylim([R_min-(w0.*vr),R_min+(w0.*vr)])
-    
+
         hold off;
 
     elseif n == 1
@@ -107,22 +107,19 @@ function find_min_radius(w0, h0, s, n, wn, epsilon)
         set(gcf, 'Color', 'white'); % Set the color of the current figure to white
     
         % Plot the first suction cup
-        fill(x_triangle1, y_triangle1, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',3); % Light blue fill, black edge
+        fill(x_triangle1, y_triangle1, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',3.5); % Light blue fill, black edge
     
         % Plot the second suction cup
-        fill(x_triangle2, y_triangle2, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',3); % Light blue fill, black edge
+        fill(x_triangle2, y_triangle2, [173/256 216/256 230/256], 'EdgeColor', 'black','lineWidth',3.5); % Light blue fill, black edge
     
         % Plot the circle
         theta_circle = linspace(0, 2*pi, 1000);
         x_circle = R_min * cos(theta_circle);
         y_circle = R_min * sin(theta_circle);
-        fill(x_circle, y_circle, [0.8 0.8 0.8], 'EdgeColor', 'black','lineWidth',2); % Light gray fill, black edge
+        fill(x_circle, y_circle, [0.8 0.8 0.8], 'EdgeColor', 'black','lineWidth',3); % Light gray fill, black edge
     
-        plot(x_arc1, y_arc1, 'g-', 'LineWidth', 3.5);
-        plot(x_arc2, y_arc2, 'g-', 'LineWidth', 3.5);
-
-        % Plot the connecting line w0
-        plot(x_line_w0, y_line_w0, 'k-', 'LineWidth', 3); % Line w0
+        plot(x_arc1, y_arc1, 'g-', 'LineWidth', 4);
+        plot(x_arc2, y_arc2, 'g-', 'LineWidth', 4);
 
         % Set plot limits and labels
         axis equal;
@@ -193,17 +190,18 @@ function find_min_radius(w0, h0, s, n, wn, epsilon)
         y_circle = R_min * sin(theta_circle);
         fill(x_circle, y_circle, [0.8 0.8 0.8], 'EdgeColor', 'black','lineWidth',1.5); % Light gray fill, black edge
     
-        plot(x_arc1, y_arc1, 'g-', 'LineWidth', 3);
-        plot(x_arc2, y_arc2, 'g-', 'LineWidth', 3);
+        plot(x_arc1, y_arc1, 'g-', 'LineWidth', 2.5);
+        plot(x_arc2, y_arc2, 'g-', 'LineWidth', 2.5);
 
-        plot(-x_arc1, y_arc1, 'g-', 'LineWidth', 3);
-        plot(-x_arc2, y_arc2, 'g-', 'LineWidth', 3);
+        plot(-x_arc1, y_arc1, 'g-', 'LineWidth', 2.5);
+        plot(-x_arc2, y_arc2, 'g-', 'LineWidth', 2.5);
 
         % Set plot limits and labels
         axis equal;
         xlim([-w0.*vr,w0.*vr]);
         ylim([R_min-(w0.*vr),R_min+(w0.*vr)])
-    
+
+
         hold off;
     end
 end
