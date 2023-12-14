@@ -1,9 +1,5 @@
 function [F_g, r, F_f, Mb] = solve_fractal_statics(varargin)
 
-    % INPUTS: optional - none: returns symbolic solution. struct: subs in numeric values and iteratively solves based on failure conditions
-    %
-    % OUTPUTS: F_g: payload r: Vacuum force distance F_f: friction force
-
     % Initialize default values
     values = struct();
     verbose = false;
@@ -32,7 +28,7 @@ function [F_g, r, F_f, Mb] = solve_fractal_statics(varargin)
     zeta = phi + atan2(x,h);
 
     % Sum of forces and moments based on FBDs
-    M_pin = -F_f.*h + F_v.*r + Mb == 0;
+    M_pin = -F_f.*h + (F_v./2).*r + Mb == 0;
     F_x = F_v.*cos(zeta) - F_f.*sin(zeta) == 0;
     F_y_block = 2.*F_v.*sin(theta/2) + 2.*F_f.*cos(theta/2) - F_g == 0;
 
