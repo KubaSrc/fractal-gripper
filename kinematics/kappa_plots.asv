@@ -2,14 +2,14 @@ close all; clc; clear all;
 
 % Plotting parameters
 n = 0:1:5;
-s_c = 0.5;
-w0 = 5;
-h0 = w0./s_c;
+s_c = 1;
+w0 = 10;
+h0 = 5;
 sigma = atan(w0./(2.*h0));
-e = 10.^-2;
+e = 10.^-.5;
 
 % Sweep of sl
-sl = [0.2;.5;.75];
+sl = [0.25;.5;.75];
 
 % Matricies to store values
 H = zeros([length(sl),length(n)]);
@@ -21,12 +21,12 @@ L = zeros([length(sl),length(n)]);
 PSI = zeros([length(sl),length(n)]);
 
 % Initialize values
-H(:,1) = h0; % n = 0
-W(:,1) = w0; % n = 0
-Wn(:,1) = w0; % n = 0
-X(:,2) = h0; % n = 1
-Y(:,2) = 0;  % n = 1
-PSI(:,2) = 0; % n = 1
+H(:,1) = h0;
+W(:,1) = w0;
+Wn(:,1) = w0;
+PSI(:,1) = 0;
+X(:,1) = w0;
+Y(:,1) = 0;
 
 % Our output results
 R_min = zeros([length(sl),length(n)]);
@@ -35,30 +35,29 @@ R_min = zeros([length(sl),length(n)]);
 for i = 1:length(sl)
     for j = 1:length(n)
 
-        % Calculate suction width
+        % Calculate suction cup width first
         if j > 1
             Wn(i,j) = (s_c.*sl(i).^(j-1)).*h0;
-            H(i,j) = H(i,j-1).*sl(i);
-            W(i,j)= W(i,j-1).*sl(i);
         end
 
         % R_min based on epsilon
-        epsilon = Wn(i,j)*10^-2;
+        epsilon = Wn(i,j)*e;
         R_e = (Wn(i,j).^2 + 4.*epsilon.^2) ./ (8.*epsilon);
        
         % R_min based on geometry
-        % Box dims after (n > 1)
-        if j > 2
+        if j > 1
+            % Current height and width
+            H(i,j) = H(i,j-1).*sl(i);
+            W(i,j)= W(i,j-1).*sl(i);
+            
+            L(i,j-1) = sqrt(H(i,j-1).^2+(W(i,j-1)./2).^2);
             X(i,j) = X(i,j-1) - 2.*L(i,j-1).*cos(sigma-PSI(i,j-1));
             Y(i,j) = Y(i,j-1) + 2.*L(i,j-1).*sin(sigma-PSI(i,j-1));
             PSI(i,j) = atan(Y(i,j)/X(i,j));
-        end
 
-        % Calculate geometry
-        if j > 1
             L(i,j) = sqrt(H(i,j).^2+(W(i,j)./2).^2);
-            R_g = (sqrt(X(i,j).^2+Y(i,j).^2)./2) + H(i,j) - epsilon;
 
+            R_g = (sqrt(X(i,j).^2+Y(i,j).^2)./2) + H(i,j) - epsilon;
         else
             R_g = 0;
         end
@@ -78,10 +77,10 @@ set(gca, 'FontName', 'Times New Roman');
 ax.LineWidth = 1.5; % Set axes line width
 
 % Plot out data
-semilogy(n, (w0./R_min(1,:)), 'o:', 'lineWidth', 2.5, 'Color', map(:,1), 'MarkerSize', 4, 'MarkerFaceColor', map(:,1), 'MarkerEdgeColor', map(:,1), 'Marker', 'diamond');
+plot(n, (w0./R_min(1,:)), 'o:', 'lineWidth', 2.5, 'Color', map(:,1), 'MarkerSize', 4, 'MarkerFaceColor', map(:,1), 'MarkerEdgeColor', map(:,1), 'Marker', 'diamond');
 hold on;
-semilogy(n, (w0./R_min(2,:)), 'o:', 'lineWidth', 2.5, 'Color', map(:,2), 'MarkerSize', 3, 'MarkerFaceColor', map(:,2), 'MarkerEdgeColor', map(:,2), 'Marker', '^');
-semilogy(n, (w0./R_min(3,:)), 'o:', 'lineWidth', 2.5, 'Color', map(:,3), 'MarkerSize', 3, 'MarkerFaceColor', map(:,3), 'MarkerEdgeColor', map(:,3), 'Marker', 'o');
+plot(n, (w0./R_min(2,:)), 'o:', 'lineWidth', 2.5, 'Color', map(:,2), 'MarkerSize', 3, 'MarkerFaceColor', map(:,2), 'MarkerEdgeColor', map(:,2), 'Marker', '^');
+plot(n, (w0./R_min(3,:)), 'o:', 'lineWidth', 2.5, 'Color', map(:,3), 'MarkerSize', 3, 'MarkerFaceColor', map(:,3), 'MarkerEdgeColor', map(:,3), 'Marker', 'o');
 
 grid on;
 hold off; % Release the hold after plotting
